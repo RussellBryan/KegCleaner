@@ -28,11 +28,11 @@ int sanitize = 0;
 int washed = 0;
 
 float start_time = -1;
-int closing = 0;
+float time;
 
 //Pump Dutty Cycle For Drainage
 int cycle = 0;
-int num_cycles = 4;
+int num_cycles = 1;
 int pump_on_time = 14;
 int pump_off_time = 6;
 
@@ -55,6 +55,7 @@ void setup() {
   
   reset_system();
   Serial.println("Ready");
+  
 }
 
 void loop() {
@@ -91,7 +92,7 @@ void loop() {
     }
       
     //Find Time in seconds
-    float time = (millis()/1000) - start_time;
+    time = (millis()/1000.0) - start_time;
     
     if (wash) {
       digitalWrite(wash_led, HIGH);
@@ -106,7 +107,8 @@ void loop() {
           }
         else {
           //Finish Wash
-          start_time = (millis()/1000);
+          
+          start_time = millis()/1000;
           digitalWrite(cleaner_in_open, LOW);
           digitalWrite(cleaner_re_open, LOW);
           Serial.println("Cleaner Valves Closing");
@@ -115,6 +117,7 @@ void loop() {
           wash = 0;
           rinse = 1;
           washed = 1;
+          start_time = millis()/1000.0;
         }
       }
       else if (time > 5 + pump_on_time) {
@@ -136,6 +139,9 @@ void loop() {
         digitalWrite(cleaner_re_open, HIGH);
       }
     }
+    
+    //Find Time in seconds
+    time = (millis()/1000.0) - start_time;
     
     if (rinse) {
       digitalWrite(rinse_led, HIGH);
@@ -164,7 +170,10 @@ void loop() {
       }
       else {Serial.println(time);}
     }
-      
+    
+    //Find Time in seconds
+    time = (millis()/1000.0) - start_time;
+    
     //Sanatizer Cycle
     if (sanitize) {
       digitalWrite(sanit_led, HIGH);
@@ -235,4 +244,6 @@ void reset_system() {
   washed = 0;
   cycle = 0;
   start_time = -1;
+  //Debug
+  start_time = millis()/1000.0;
 }
